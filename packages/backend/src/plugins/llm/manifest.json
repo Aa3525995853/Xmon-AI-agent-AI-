@@ -1,0 +1,9 @@
+{
+    "name": "llm",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "LLM推理插件（兜底）",
+    "capabilities": ["llm:chat", "llm:complex_task"],
+    "dependencies": [],
+    "config": {}
+}

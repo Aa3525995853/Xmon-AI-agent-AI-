@@ -1,0 +1,15 @@
+# pnpm Monorepo 工作区配置
+# 指定哪些目录是子包
+packages:
+  - "packages/*"
+
+allowBuilds:
+  esbuild: true
+  vue-demi: true
+
+# 🔑 新版 pnpm (v10+) 的核心配置写在这里，而不是 package.json！
+# 允许以下依赖在安装时执行构建脚本（esbuild 必须允许，否则 Vite 无法运行）
+onlyBuiltDependencies:
+  - esbuild
+  - core-js
+  - vue-demi

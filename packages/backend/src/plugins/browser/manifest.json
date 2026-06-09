@@ -1,0 +1,9 @@
+{
+    "name": "browser",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "浏览器自动化插件",
+    "capabilities": ["browser:execute", "browser:search", "browser:extract", "browser:screenshot"],
+    "dependencies": [],
+    "config": {}
+}

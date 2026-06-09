@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # 小梦语音助手主服务
+  xiaomeng:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xiaomeng-assistant
+    restart: unless-stopped
+    ports:
+      - "3000:3000"   # HTTP API
+      - "8080:8080"   # WebSocket (streaming)
+    environment:
+      # Node 环境
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+
+      # API 配置（从 .env 文件读取）
+      - KIMI_API_KEY=${KIMI_API_KEY}
+      - KIMI_API_URL=${KIMI_API_URL}
+      - KIMI_MODEL=${KIMI_MODEL}
+      - MIMO_API_KEY=${MIMO_API_KEY}
+      - MIMO_API_URL=${MIMO_API_URL}
+      - MIMO_MODEL=${MIMO_MODEL}
+
+      # TTS 配置
+      - TTS_PROVIDER=${TTS_PROVIDER:-mimo}
+      - MIMO_TTS_API_KEY=${MIMO_TTS_API_KEY}
+      - MIMO_TTS_API_URL=${MIMO_TTS_API_URL}
+
+      # 人格模式
+      - PERSONA_MODE=${PERSONA_MODE:-gentle}
+
+      # 配置验证
+      - VALIDATE_CONFIG=true
+
+      # 可选：覆盖默认配置
+      # - LLM_TEMPERATURE=0.9
+      # - LLM_STREAM_TIMEOUT=20000
+      # - SENTENCE_MAX_LENGTH=60
+      # - CHAT_DEFAULT_EMOTION=happy
+      # - TTS_SAMPLE_RATE=24000
+    volumes:
+      # 持久化日志
+      - ./logs:/app/logs
+      # 持久化记忆数据（如果有）
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - xiaomeng-network
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+       cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # ============================================================
+  # Nginx 反向代理 + 前端静态服务
+  # 前后端分离架构：
+  #   - Nginx 直接服务前端构建产物（/usr/share/nginx/html）
+  #   - API/WebSocket 请求反向代理到后端服务
+  #   - 前端 dist 目录以只读方式挂载，确保安全
+  # 启动方式：docker compose --profile with-nginx up
+  # ============================================================
+  nginx:
+    image: nginx:alpine
+    container_name: xiaomeng-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Nginx 配置文件（只读挂载）
+      - ./packages/backend/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # 前端构建产物（只读挂载，需先执行 pnpm build 构建）
+      - ./packages/frontend/dist:/usr/share/nginx/html:ro
+      # SSL 证书目录（可选，用于 HTTPS）
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - xiaomeng
+    networks:
+      - xiaomeng-network
+    profiles:
+      - with-nginx
+
+networks:
+  xiaomeng-network:
+    driver: bridge
+
+volumes:
+  logs:
+  data:

@@ -1,0 +1,11 @@
+:root { --surface-canvas: #faf9f5; --surface-soft: #f5f0e8; --surface-card: #efe9de; --surface-dark: #181715; --border-color: #e6dfd8; --accent-coral: #cc785c; --accent-coral-active: #a9583e; --on-dark: #faf9f5; --on-dark-soft: #a09d96; --font-mono: "JetBrains Mono", ui-monospace, monospace; --radius-lg: 12px; --radius-md: 8px; --transition-fast: 0.15s ease; }
+.desktop-shell { border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); background: rgba(250, 249, 245, 0.92); backdrop-filter: blur(8px); }
+.desktop-header { background: var(--surface-soft); border-bottom: 1px solid var(--border-color); padding: 16px 24px; }
+.app-main { gap: 24px; padding: 24px; }
+.waveform-container { background: var(--surface-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; }
+.logs-panel { background: var(--surface-dark); border: none; border-radius: var(--radius-lg); color: var(--on-dark); }
+.chat-panel { border-radius: var(--radius-lg); border: 1px solid var(--border-color); background: var(--surface-canvas); }
+.workflow-panel { border-radius: var(--radius-lg); border: 1px solid var(--border-color); background: var(--surface-card); }
+.logs-content { font-family: var(--font-mono); color: var(--on-dark-soft); }
+.send-btn, .mic-btn { transition: transform var(--transition-fast), background var(--transition-fast); }
+.send-btn:hover, .mic-btn:hover { transform: translateY(-1px); background: var(--accent-coral-active); }

@@ -1,0 +1,9 @@
+{
+    "name": "weather",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "天气查询插件",
+    "capabilities": ["weather:query", "weather:forecast", "weather:air_quality"],
+    "dependencies": [],
+    "config": {}
+}

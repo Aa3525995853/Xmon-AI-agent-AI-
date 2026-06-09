@@ -1,0 +1,9 @@
+{
+    "name": "news",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "智能新闻搜索插件",
+    "capabilities": ["news:search"],
+    "dependencies": [],
+    "config": {}
+}

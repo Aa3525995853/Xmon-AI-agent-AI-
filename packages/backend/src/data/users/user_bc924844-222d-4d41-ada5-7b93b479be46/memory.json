@@ -1,0 +1,61 @@
+{
+  "state": {
+    "environment": {
+      "lastLocation": "unknown",
+      "deviceType": "pc",
+      "ambientCues": []
+    },
+    "time": {
+      "lastInteraction": 0,
+      "relativeTime": "",
+      "timeAnchor": "",
+      "sessionDuration": 0
+    },
+    "memory": {
+      "core": [],
+      "episodic": [],
+      "semantic": {},
+      "daily": []
+    },
+    "emotion": {
+      "current": "calm",
+      "momentum": 0,
+      "history": [],
+      "lastUserEmotion": "neutral",
+      "empathyLevel": 0.5
+    },
+    "topic": {
+      "current": "",
+      "history": [],
+      "depth": 0,
+      "transitionCount": 0
+    },
+    "relationship": {
+      "intimacy": 0.3,
+      "trust": 0.4,
+      "familiarity": 0.2,
+      "emotionalBond": 0.1,
+      "sharedExperiences": [],
+      "lastSignificantEvent": "",
+      "interactionCount": 0,
+      "relationshipStage": "stranger"
+    }
+  },
+  "emotionState": {
+    "lastEmotion": "calm",
+    "lastTopic": "",
+    "lastWords": "",
+    "lastTimestamp": 0,
+    "sessionId": 0
+  },
+  "vocabulary": {},
+  "timeAnchored": [],
+  "responsePatterns": {
+    "recentResponses": [],
+    "styleDistribution": {},
+    "lastPhraseHashes": []
+  },
+  "interactions": [],
+  "topics": [],
+  "emotions": []
+}

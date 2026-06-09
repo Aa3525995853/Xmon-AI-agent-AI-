@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小梦 - 情感陪伴语音智能体</title>
+  <!-- 网站图标 -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
+  <!-- 本地字体 -->
+  <link rel="stylesheet" href="/fonts/cormorant-garamond/400.css">
+  <link rel="stylesheet" href="/fonts/cormorant-garamond/500.css">
+  <link rel="stylesheet" href="/fonts/cormorant-garamond/600.css">
+  <link rel="stylesheet" href="/fonts/inter/300.css">
+  <link rel="stylesheet" href="/fonts/inter/400.css">
+  <link rel="stylesheet" href="/fonts/inter/500.css">
+  <link rel="stylesheet" href="/fonts/inter/600.css">
+  <link rel="stylesheet" href="/fonts/inter/700.css">
+  <!-- Font Awesome 图标 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- ============================================================
+       Live2D 依赖（必须在应用脚本之前加载）
+       加载顺序：PIXI.js → Live2D Cubism Core → pixi-live2d-display
+       路径说明：live2dcubismcore.min.js 位于前端 public/live2d/assets/live2d_core/
+       前后端分离后由 Vite/Nginx 直接提供，不再从后端代理
+       ============================================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.3.2/dist/pixi.min.js"></script>
+  <script src="/live2d/assets/live2d_core/live2dcubismcore.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/RaSan147/pixi-live2d-display@v0.4.0-ls-4/dist/cubism4.min.js"></script>
+  <!-- Socket.io 客户端（WebSocket 实时通信，用于工作区日志推送） -->
+  <script src="/ws/socket.io.js"></script>
+  <!-- Markdown 和代码高亮（使用 cdnjs 镜像，避免 ORB 拦截） -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

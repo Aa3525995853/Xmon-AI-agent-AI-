@@ -1,0 +1,213 @@
+[
+  {
+    "id": "news",
+    "name": "新闻搜索",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "智能新闻搜索，支持多源聚合、摘要提取、IP定位",
+    "capabilities": [
+      "news:search"
+    ],
+    "tags": [
+      "新闻",
+      "搜索",
+      "资讯"
+    ],
+    "author": "小梦官方",
+    "official": true,
+    "size": "12KB",
+    "dependencies": []
+  },
+  {
+    "id": "weather",
+    "name": "天气查询",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "实时天气查询，支持城市定位和未来预报",
+    "capabilities": [
+      "weather:query"
+    ],
+    "tags": [
+      "天气",
+      "查询",
+      "生活"
+    ],
+    "author": "小梦官方",
+    "official": true,
+    "size": "8KB",
+    "dependencies": []
+  },
+  {
+    "id": "system",
+    "name": "系统控制",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "打开应用、播放音乐、搜索网页等系统能力",
+    "capabilities": [
+      "system:launch_app",
+      "system:play_music",
+      "system:search_web",
+      "system:open_url"
+    ],
+    "tags": [
+      "系统",
+      "控制",
+      "应用"
+    ],
+    "author": "小梦官方",
+    "official": true,
+    "size": "15KB",
+    "dependencies": []
+  },
+  {
+    "id": "browser",
+    "name": "浏览器自动化",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "基于 Playwright 的浏览器自动化操作",
+    "capabilities": [
+      "browser:execute"
+    ],
+    "tags": [
+      "浏览器",
+      "自动化",
+      "爬虫"
+    ],
+    "author": "小梦官方",
+    "official": true,
+    "size": "20KB",
+    "dependencies": []
+  },
+  {
+    "id": "llm",
+    "name": "LLM 推理",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "大模型推理能力，支持对话和复杂任务",
+    "capabilities": [
+      "llm:chat",
+      "llm:complex_task"
+    ],
+    "tags": [
+      "LLM",
+      "推理",
+      "对话"
+    ],
+    "author": "小梦官方",
+    "official": true,
+    "size": "10KB",
+    "dependencies": []
+  },
+  {
+    "id": "calendar",
+    "name": "日历管理",
+    "version": "0.1.0",
+    "type": "js",
+    "description": "日程管理、提醒设置、日历查询",
+    "capabilities": [
+      "calendar:schedule",
+      "calendar:remind",
+      "calendar:query"
+    ],
+    "tags": [
+      "日历",
+      "日程",
+      "提醒"
+    ],
+    "author": "社区",
+    "official": false,
+    "size": "6KB",
+    "dependencies": [],
+    "status": "available"
+  },
+  {
+    "id": "translator",
+    "name": "翻译助手",
+    "version": "0.1.0",
+    "type": "js",
+    "description": "多语言翻译，支持中英日韩等语言",
+    "capabilities": [
+      "translator:translate",
+      "translator:detect"
+    ],
+    "tags": [
+      "翻译",
+      "语言",
+      "多语言"
+    ],
+    "author": "社区",
+    "official": false,
+    "size": "8KB",
+    "dependencies": [],
+    "status": "available"
+  },
+  {
+    "id": "code",
+    "name": "代码助手",
+    "version": "0.1.0",
+    "type": "js",
+    "description": "代码生成、调试、重构、解释",
+    "capabilities": [
+      "code:generate",
+      "code:debug",
+      "code:explain"
+    ],
+    "tags": [
+      "代码",
+      "编程",
+      "开发"
+    ],
+    "author": "社区",
+    "official": false,
+    "size": "10KB",
+    "dependencies": [
+      "llm"
+    ],
+    "status": "available"
+  },
+  {
+    "id": "file-manager",
+    "name": "文件管理",
+    "version": "0.1.0",
+    "type": "js",
+    "description": "文件读写、目录管理、批量操作",
+    "capabilities": [
+      "file:read",
+      "file:write",
+      "file:list",
+      "file:organize"
+    ],
+    "tags": [
+      "文件",
+      "管理",
+      "文档"
+    ],
+    "author": "社区",
+    "official": false,
+    "size": "7KB",
+    "dependencies": [],
+    "status": "available"
+  },
+  {
+    "id": "email",
+    "name": "邮件助手",
+    "version": "0.1.0",
+    "type": "js",
+    "description": "发送邮件、收取邮件、邮件摘要",
+    "capabilities": [
+      "email:send",
+      "email:read",
+      "email:summarize"
+    ],
+    "tags": [
+      "邮件",
+      "通信",
+      "办公"
+    ],
+    "author": "社区",
+    "official": false,
+    "size": "9KB",
+    "dependencies": [],
+    "status": "available"
+  }
+]

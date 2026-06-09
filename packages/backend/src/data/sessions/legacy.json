@@ -1,0 +1,70 @@
+{
+  "id": "legacy",
+  "createdAt": 1780234799162,
+  "updatedAt": 1780241195620,
+  "lastActiveAt": 1780241195620,
+  "history": [
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780234799164,
+      "type": "task_result"
+    },
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780234815611,
+      "type": "task_result"
+    },
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780236068543,
+      "type": "task_result"
+    },
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780236098837,
+      "type": "task_result"
+    },
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780236202621,
+      "type": "task_result"
+    },
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780238051227,
+      "type": "task_result"
+    },
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780240555036,
+      "type": "task_result"
+    },
+    {
+      "role": "assistant",
+      "content": "[{\"step\":1,\"capability\":\"llm\",\"error\":\"llmService.callMimoDirect is not a function\"}]",
+      "timestamp": 1780240576708,
+      "type": "task_result"
+    },
+    {
+      "role": "system",
+      "content": "你想听什么歌呢？可以说歌名或歌手~",
+      "timestamp": 1780241195620,
+      "type": "clarification"
+    }
+  ],
+  "activeTask": {
+    "taskId": "task_mptxn5ur_74e2",
+    "description": "暂停音乐",
+    "startedAt": 1780241195619
+  },
+  "context": {},
+  "metadata": {},
+  "preferences": {}
+}

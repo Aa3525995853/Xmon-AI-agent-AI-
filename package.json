@@ -1,0 +1,25 @@
+{
+  "name": "xiaomeng-monorepo",
+  "version": "1.0.0",
+  "description": "华人牌2060款手机小梦 - 语音助手 (Monorepo)",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"pnpm --filter @xiaomeng/backend dev\" \"pnpm --filter @xiaomeng/frontend dev\"",
+    "dev:backend": "pnpm --filter @xiaomeng/backend dev",
+    "dev:frontend": "pnpm --filter @xiaomeng/frontend dev",
+    "build": "pnpm --filter @xiaomeng/shared build && pnpm --filter @xiaomeng/backend build && pnpm --filter @xiaomeng/frontend build",
+    "start": "pnpm --filter @xiaomeng/backend start",
+    "test": "pnpm --filter @xiaomeng/backend test",
+    "verify": "node scripts/verify.js",
+    "lint": "node scripts/lint.js",
+    "clean": "pnpm -r clean"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

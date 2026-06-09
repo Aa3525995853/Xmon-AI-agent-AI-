@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "d:\\projects\\xiaomeng\\logs\\.7b0aeae91613a408699849e1e9aaa03fe36dcc21-audit.json",
+    "files": [
+        {
+            "date": 1780929330259,
+            "name": "d:\\projects\\xiaomeng\\logs\\app-2026-06-08.log",
+            "hash": "4e512318fdad4625930bb5d4367325931be97c6aa3df9a44069accfedbc8f300"
+        },
+        {
+            "date": 1780982891705,
+            "name": "d:\\projects\\xiaomeng\\logs\\app-2026-06-09.log",
+            "hash": "0546fe44db1873fe8bdf621a46744baa4c78c6f5241f6ee6d7fdff5a572a743f"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -1,0 +1,66 @@
+{
+  "name": "李明",
+  "nickname": "小明就",
+  "occupation": "软件工程师",
+  "location": "",
+  "personality": [
+    "内向",
+    "认真",
+    "细心",
+    "耐心"
+  ],
+  "interests": [
+    "跑步",
+    "摄影",
+    "看电影"
+  ],
+  "importantEvents": [
+    {
+      "content": "下周三要给客户做产品演示",
+      "createdAt": 1780985321308
+    },
+    {
+      "content": "年底前要减肥10斤",
+      "createdAt": 1780985321308
+    }
+  ],
+  "anniversaries": [
+    "生日是8月15号",
+    "升职加薪了"
+  ],
+  "preferences": {
+    "food": [
+      "川菜",
+      "火锅"
+    ]
+  },
+  "interactionCount": 61,
+  "createdAt": 1780324544884,
+  "updatedAt": 1780996451001,
+  "happyMoments": [
+    {
+      "content": "[happy] 今天太开心了！终于通过了大公司的面试",
+      "createdAt": 1780985683088
+    },
+    {
+      "content": "[happy] 升职加薪了，太棒了",
+      "createdAt": 1780985683088
+    }
+  ],
+  "sadMoments": [
+    {
+      "content": "[sad] 感觉自己什么都做不好",
+      "createdAt": 1780985683088
+    },
+    {
+      "content": "[sad] 狗狗走丢了",
+      "createdAt": 1780985683088
+    }
+  ],
+  "angryMoments": [
+    {
+      "content": "[angry] 被骗子骗了500块钱",
+      "createdAt": 1780985683088
+    }
+  ]
+}

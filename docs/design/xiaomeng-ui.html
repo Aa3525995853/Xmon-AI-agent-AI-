@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xiao Meng - 情感陪伴语音智能体</title>
+    <!-- Local Fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.cn/css2?family=Monoton&family=Courier+Prime:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ========== Design Tokens ========== */
+        :root {
+            --bg-primary: #050510;
+            --bg-secondary: #0a0a1a;
+            --bg-panel: rgba(5, 5, 16, 0.85);
+            --neon-cyan: #00ffff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff88;
+            --neon-orange: #ff8800;
+            --neon-red: #ff3355;
+            --neon-purple: #aa55ff;
+            --neon-blue: #4488ff;
+            --text-dim: rgba(0, 255, 255, 0.4);
+            --text-medium: rgba(0, 255, 255, 0.7);
+            --border-dim: rgba(0, 255, 255, 0.1);
+            --border-active: rgba(0, 255, 255, 0.3);
+            --shadow-neon: 0 0 15px rgba(0, 255, 255, 0.3);
+            --shadow-neon-strong: 0 0 30px rgba(0, 255, 255, 0.5);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --font-mono: 'Courier Prime', monospace;
+            --font-display: 'Monoton', cursive;
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+        }
+
+        /* ========== Global Reset ========== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--neon-cyan);
+            font-family: var(--font-mono);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========== Desktop Shell ========== */
+        .desktop-shell {
+            width: 1400px;
+            height: 820px;
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-neon-strong);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-dim);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ========== Header ========== */
+        .desktop-header {
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-dim);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-brand {
+            font-family: var(--font-display);
+            font-size: 18px;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            letter-spacing: 2px;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 16px;
+            background: var(--border-dim);
+        }
+
+        .header-status {
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 6px var(--neon-green);
+            animation: pulse-dot 2s infinite;
+        }
+
+        .status-dot.offline { background: var(--neon-red); box-shadow: 0 0 6px var(--neon-red); }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            font-size: 14px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .header-icon:hover { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
+
+        /* ========== Main Layout ========== */
+        .app-main {
+            flex: 1;
+            display: flex;
+            padding: 24px;
+            gap: 24px;
+            overflow: hidden;
+        }
+
+        /* ========== Left Panel: Voice + Waveform ========== */
+        .voice-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Emotion Indicator */
+        .emotion-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-panel);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-dim);
+        }
+
+        .emotion-icon {
+            font-size: 28px;
+            transition: var(--transition-normal);
+        }
+
+        .emotion-label {
+            font-size: 13px;
+            color: var(--text-medium);
+        }
+
+        .emotion-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        .emotion-confidence {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* Waveform Canvas */
+        .waveform-container {
+            flex: 1;
+            position: relative;
+            background: var(--bg-panel);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-dim);
+            overflow: hidden;
+        }
+
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .waveform-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 20px;
+            background: linear-gradient(transparent, rgba(5, 5, 16, 0.9));
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .waveform-label {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .waveform-amplitude {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Voice Controls */
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .mic-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-cyan);
+            background: transparent;
+            color: var(--neon-cyan);
+            font-size: 24px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .mic-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: var(--shadow-neon);
+        }
+
+        .mic-btn.listening {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            animation: pulse-mic 1.5s infinite;
+        }
+
+        .mic-btn.processing {
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
+            box-shadow: 0 0 30px rgba(255, 136, 0, 0.4);
+            animation: spin-icon 1s linear infinite;
+        }
+
+        .mic-btn.speaking {
+            border-color: var(--neon-purple);
+            color: var(--neon-purple);
+            box-shadow: 0 0 30px rgba(170, 85, 255, 0.4);
+        }
+
+        @keyframes pulse-mic {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes spin-icon {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .mic-btn i { pointer-events: none; }
+
+        .voice-status {
+            flex: 1;
+        }
+
+        .voice-status-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            margin-bottom: 4px;
+        }
+
+        .voice-status-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .volume-meter {
+            width: 100%;
+            height: 4px;
+            background: var(--border-dim);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: var(--neon-cyan);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+
+        /* Text Input */
+        .text-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .text-input {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--neon-cyan);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition-fast);
+        }
+
+        .text-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.15);
+        }
+
+        .text-input::placeholder { color: var(--text-dim); }
+
+        .send-btn {
+            background: transparent;
+            border: 1px solid var(--neon-cyan);
+            border-radius: var(--radius-sm);
+            color: var(--neon-cyan);
+            padding: 10px 16px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            transition: var(--transition-fast);
+        }
+
+        .send-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        /* ========== Center Panel: Chat ========== */
+        .chat-panel {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-dim);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .chat-action-btn:hover { color: var(--neon-cyan); }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 2px; }
+
+        .msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: rgba(0, 255, 255, 0.08);
+            border: 1px solid var(--border-active);
+            color: var(--neon-cyan);
+        }
+
+        .msg.assistant {
+            align-self: flex-start;
+            background: rgba(170, 85, 255, 0.08);
+            border: 1px solid rgba(170, 85, 255, 0.2);
+            color: var(--neon-purple);
+        }
+
+        .msg-meta {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .msg-emotion {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--neon-green);
+            font-size: 10px;
+        }
+
+        /* ========== Right Panel: Agent Workflow + Logs ========== */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Workflow State */
+        .workflow-panel {
+            background: var(--bg-panel);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-dim);
+            padding: 16px;
+        }
+
+        .workflow-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .workflow-title i {
+            color: var(--neon-cyan);
+            font-size: 12px;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .wf-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid transparent;
+            transition: var(--transition-fast);
+        }
+
+        .wf-step.active {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .wf-step.done {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .wf-step.error {
+            border-color: var(--neon-red);
+            background: rgba(255, 51, 85, 0.05);
+        }
+
+        .wf-step-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .wf-step.active .wf-step-icon {
+            background: var(--neon-cyan);
+            color: var(--bg-primary);
+            box-shadow: 0 0 10px var(--neon-cyan);
+            animation: pulse-step 1s infinite;
+        }
+
+        .wf-step.done .wf-step-icon {
+            background: var(--neon-green);
+            color: var(--bg-primary);
+        }
+
+        .wf-step.error .wf-step-icon {
+            background: var(--neon-red);
+            color: white;
+        }
+
+        .wf-step.idle .wf-step-icon {
+            background: var(--border-dim);
+            color: var(--text-dim);
+        }
+
+        @keyframes pulse-step {
+            0%, 100% { box-shadow: 0 0 5px var(--neon-cyan); }
+            50% { box-shadow: 0 0 15px var(--neon-cyan); }
+        }
+
+        .wf-step-label {
+            font-size: 12px;
+            color: var(--text-medium);
+            flex: 1;
+        }
+
+        .wf-step.active .wf-step-label { color: var(--neon-cyan); font-weight: 700; }
+        .wf-step.done .wf-step-label { color: var(--neon-green); }
+        .wf-step.error .wf-step-label { color: var(--neon-red); }
+
+        .wf-step-time {
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        /* Memory Logs */
+        .logs-panel {
+            flex: 1;
+            background: var(--bg-panel);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-dim);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .logs-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logs-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .logs-filter {
+            display: flex;
+            gap: 6px;
+        }
+
+        .filter-btn {
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-dim);
+            background: transparent;
+            color: var(--text-dim);
+            font-size: 10px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-family: var(--font-mono);
+        }
+
+        .filter-btn.active {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .filter-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+        .logs-content {
+            flex: 1;
+            padding: 12px 16px;
+            overflow-y: auto;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .logs-content::-webkit-scrollbar { width: 3px; }
+        .logs-content::-webkit-scrollbar-track { background: transparent; }
+        .logs-content::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 2px; }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.03);
+        }
+
+        .log-time {
+            color: var(--text-dim);
+            margin-right: 8px;
+        }
+
+        .log-tag {
+            display: inline-block;
+            padding: 0 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            margin-right: 6px;
+        }
+
+        .log-tag.asr { background: rgba(0, 255, 136, 0.15); color: var(--neon-green); }
+        .log-tag.llm { background: rgba(0, 255, 255, 0.15); color: var(--neon-cyan); }
+        .log-tag.tts { background: rgba(170, 85, 255, 0.15); color: var(--neon-purple); }
+        .log-tag.mem { background: rgba(255, 136, 0, 0.15); color: var(--neon-orange); }
+        .log-tag.sys { background: rgba(255, 51, 85, 0.15); color: var(--neon-red); }
+
+        .log-msg { color: var(--text-medium); }
+
+        /* ========== Footer ========== */
+        .desktop-footer {
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-dim);
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-left i {
+            font-size: 14px;
+            color: var(--neon-cyan);
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-metric {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer-metric .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        .footer-metric .dot.green { background: var(--neon-green); }
+        .footer-metric .dot.orange { background: var(--neon-orange); }
+        .footer-metric .dot.red { background: var(--neon-red); }
+
+        /* ========== Animations ========== */
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glow-pulse {
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 8px var(--neon-cyan); }
+            50% { text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px rgba(0, 255, 255, 0.3); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="desktop-shell">
+
+    <!-- Header -->
+    <header class="desktop-header">
+        <div class="header-left">
+            <span class="header-brand glow-pulse">XIAO MENG</span>
+            <div class="header-divider"></div>
+            <div class="header-status">
+                <span class="status-dot" id="systemStatus"></span>
+                <span id="systemStatusText">SYSTEM ONLINE</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <i class="header-icon fas fa-cog" title="Settings"></i>
+            <i class="header-icon fas fa-expand" title="Fullscreen"></i>
+            <i class="header-icon fas fa-power-off" title="Power"></i>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+
+        <!-- Left: Voice Panel -->
+        <div class="voice-panel">
+
+            <!-- Emotion Indicator -->
+            <div class="emotion-bar">
+                <span class="emotion-icon" id="emotionIcon">😶</span>
+                <div>
+                    <div class="emotion-label">Current Mood</div>
+                    <div class="emotion-value" id="emotionValue">等待对话...</div>
+                </div>
+                <span class="emotion-confidence" id="emotionConf"></span>
+            </div>
+
+            <!-- Waveform -->
+            <div class="waveform-container">
+                <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
+                <div class="waveform-overlay">
+                    <span class="waveform-label">AUDIO INPUT</span>
+                    <span class="waveform-amplitude" id="amplitudeDisplay">0.00</span>
+                </div>
+            </div>
+
+            <!-- Voice Controls -->
+            <div class="voice-controls">
+                <button class="mic-btn" id="micBtn" title="Push to Talk">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <div class="voice-status">
+                    <div class="voice-status-text" id="voiceStatusText">点击开始对话</div>
+                    <div class="voice-status-desc" id="voiceStatusDesc">按住麦克风按钮或输入文字</div>
+                    <div class="volume-meter">
+                        <div class="volume-fill" id="volumeFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Input -->
+            <div class="text-input-row">
+                <input class="text-input" id="textInput" type="text" placeholder="Type a message..." />
+                <button class="send-btn" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i> SEND
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Center: Chat Panel -->
+        <div class="chat-panel">
+            <div class="chat-header">
+                <span class="chat-title"><i class="fas fa-comments"></i> CONVERSATION</span>
+                <div class="chat-actions">
+                    <button class="chat-action-btn" id="clearChat" title="Clear Chat"><i class="fas fa-trash"></i></button>
+                    <button class="chat-action-btn" id="exportChat" title="Export"><i class="fas fa-download"></i></button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="msg assistant fade-in">
+                    <div>嗨主人！我是小梦~ 有什么我能帮你的吗？</div>
+                    <div class="msg-meta">
+                        <span class="msg-emotion"><i class="fas fa-smile"></i> 开心</span>
+                        <span>刚刚</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Workflow + Logs -->
+        <div class="right-panel">
+
+            <!-- Agent Workflow -->
+            <div class="workflow-panel">
+                <div class="workflow-title">
+                    <i class="fas fa-project-diagram"></i> AGENT PIPELINE
+                </div>
+                <div class="workflow-steps">
+                    <div class="wf-step idle" id="wf-asr">
+                        <div class="wf-step-icon"><i class="fas fa-ear-listen"></i></div>
+                        <span class="wf-step-label">ASR - Speech to Text</span>
+                        <span class="wf-step-time" id="wf-asr-time">-</span>
+                    </div>
+                    <div class="wf-step idle" id="wf-llm">
+                        <div class="wf-step-icon"><i class="fas fa-brain"></i></div>
+                        <span class="wf-step-label">LLM - Thinking</span>
+                        <span class="wf-step-time" id="wf-llm-time">-</span>
+                    </div>
+                    <div class="wf-step idle" id="wf-memory">
+                        <div class="wf-step-icon"><i class="fas fa-database"></i></div>
+                        <span class="wf-step-label">Memory - Retrieval</span>
+                        <span class="wf-step-time" id="wf-memory-time">-</span>
+                    </div>
+                    <div class="wf-step idle" id="wf-tool">
+                        <div class="wf-step-icon"><i class="fas fa-wrench"></i></div>
+                        <span class="wf-step-label">Tool - Execution</span>
+                        <span class="wf-step-time" id="wf-tool-time">-</span>
+                    </div>
+                    <div class="wf-step idle" id="wf-tts">
+                        <div class="wf-step-icon"><i class="fas fa-volume-high"></i></div>
+                        <span class="wf-step-label">TTS - Text to Speech</span>
+                        <span class="wf-step-time" id="wf-tts-time">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Logs -->
+            <div class="logs-panel">
+                <div class="logs-header">
+                    <span class="logs-title"><i class="fas fa-file-code"></i> MEMORY LOGS</span>
+                    <div class="logs-filter">
+                        <button class="filter-btn active" data-filter="all">ALL</button>
+                        <button class="filter-btn" data-filter="asr">ASR</button>
+                        <button class="filter-btn" data-filter="llm">LLM</button>
+                        <button class="filter-btn" data-filter="tts">TTS</button>
+                        <button class="filter-btn" data-filter="mem">MEM</button>
+                    </div>
+                </div>
+                <div class="logs-content" id="logsContent">
+                    <!-- Logs will be injected here -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="desktop-footer">
+        <div class="footer-left">
+            <i class="fas fa-terminal"></i>
+            <span>CONSOLE | NODE_READY</span>
+        </div>
+        <div class="footer-right">
+            <div class="footer-metric">
+                <span class="dot green"></span>
+                <span>ASR: <strong id="footerAsr">FunASR</strong></span>
+            </div>
+            <div class="footer-metric">
+                <span class="dot green"></span>
+                <span>LLM: <strong id="footerLlm">MiMo</strong></span>
+            </div>
+            <div class="footer-metric">
+                <span class="dot green"></span>
+                <span>TTS: <strong id="footerTts">MiMo TTS</strong></span>
+            </div>
+            <div class="footer-metric">
+                <span id="footerLatency">LATENCY: --ms</span>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+// ========== State ==========
+const state = {
+    mode: 'idle', // idle | listening | processing | speaking
+    isListening: false,
+    isProcessing: false,
+    isPlaying: false,
+    emotion: { label: '等待对话', icon: '😶', confidence: 0 },
+    messages: [],
+    logs: [],
+    workflow: { asr: 'idle', llm: 'idle', memory: 'idle', tool: 'idle', tts: 'idle' },
+    latency: 0
+};
+
+// ========== DOM Elements ==========
+const $ = id => document.getElementById(id);
+
+const micBtn = $('micBtn');
+const textInput = $('textInput');
+const sendBtn = $('sendBtn');
+const chatMessages = $('chatMessages');
+const logsContent = $('logsContent');
+const volumeFill = $('volumeFill');
+const waveformCanvas = $('waveformCanvas');
+const ctx = waveformCanvas.getContext('2d');
+
+// ========== Waveform Visualization ==========
+let animFrame;
+let waveData = new Array(128).fill(0);
+
+function resizeCanvas() {
+    const rect = waveformCanvas.parentElement.getBoundingClientRect();
+    waveformCanvas.width = rect.width * 2;
+    waveformCanvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function drawWaveform() {
+    const w = waveformCanvas.width / 2;
+    const h = waveformCanvas.height / 2;
+    ctx.clearRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.05)';
+    ctx.lineWidth = 0.5;
+    for (let y = 0; y < h; y += 20) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    // Waveform
+    const gradient = ctx.createLinearGradient(0, 0, w, 0);
+    gradient.addColorStop(0, 'rgba(0, 255, 255, 0.2)');
+    gradient.addColorStop(0.5, '#00ffff');
+    gradient.addColorStop(1, 'rgba(0, 255, 255, 0.2)');
+
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = state.mode === 'listening' ? 15 : 5;
+
+    ctx.beginPath();
+    const sliceWidth = w / waveData.length;
+    for (let i = 0; i < waveData.length; i++) {
+        const x = i * sliceWidth;
+        const y = (h / 2) + (waveData[i] * h / 2 * 0.8);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Center line
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+
+    animFrame = requestAnimationFrame(drawWaveform);
+}
+drawWaveform();
+
+function updateWaveform(volume) {
+    for (let i = 0; i < waveData.length; i++) {
+        waveData[i] = waveData[i] * 0.7 + (Math.random() * volume * 2) * 0.3;
+    }
+    $('amplitudeDisplay').textContent = volume.toFixed(3);
+}
+
+function idleWaveform() {
+    const t = Date.now() / 1000;
+    for (let i = 0; i < waveData.length; i++) {
+        waveData[i] = waveData[i] * 0.9 + (Math.sin(t + i * 0.1) * 0.02) * 0.1;
+    }
+}
+setInterval(idleWaveform, 50);
+
+// ========== Mode Management ==========
+function setMode(mode) {
+    state.mode = mode;
+    micBtn.className = 'mic-btn' + (mode !== 'idle' ? ' ' + mode : '');
+
+    const labels = {
+        idle: ['点击开始对话', '按住麦克风按钮或输入文字'],
+        listening: ['聆听中...', '正在听你说话'],
+        processing: ['思考中...', '小梦正在组织语言'],
+        speaking: ['说话中...', '小梦正在回应你']
+    };
+
+    $('voiceStatusText').textContent = labels[mode][0];
+    $('voiceStatusDesc').textContent = labels[mode][1];
+}
+
+// ========== Emotion ==========
+const EMOTIONS = {
+    '开心': { icon: '😊', color: '#00ff88' },
+    '悲伤': { icon: '😢', color: '#4488ff' },
+    '生气': { icon: '😠', color: '#ff3355' },
+    '温柔': { icon: '🥰', color: '#ff88cc' },
+    '惊讶': { icon: '😲', color: '#ff8800' },
+    '紧张': { icon: '😰', color: '#ffaa00' },
+    '平静': { icon: '😌', color: '#00ffff' },
+    '悄悄话': { icon: '🤫', color: '#aa55ff' }
+};
+
+function setEmotion(label, confidence = 0.9) {
+    const e = EMOTIONS[label] || { icon: '😶', color: '#00ffff' };
+    state.emotion = { label, icon: e.icon, confidence };
+    $('emotionIcon').textContent = e.icon;
+    $('emotionValue').textContent = label;
+    $('emotionValue').style.color = e.color;
+    $('emotionValue').style.textShadow = `0 0 8px ${e.color}`;
+    $('emotionConf').textContent = `${(confidence * 100).toFixed(0)}%`;
+}
+
+// ========== Workflow ==========
+function setWorkflowStep(step, status, time = null) {
+    const el = $(`wf-${step}`);
+    if (!el) return;
+    el.className = `wf-step ${status}`;
+    if (time !== null) $(`wf-${step}-time`).textContent = `${time}ms`;
+}
+
+function resetWorkflow() {
+    ['asr', 'llm', 'memory', 'tool', 'tts'].forEach(s => {
+        setWorkflowStep(s, 'idle');
+        $(`wf-${s}-time`).textContent = '-';
+    });
+}
+
+// ========== Chat ==========
+function addMessage(role, text, emotion = null) {
+    const msg = document.createElement('div');
+    msg.className = `msg ${role} fade-in`;
+    const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    const emotionHtml = emotion ? `<span class="msg-emotion"><i class="fas fa-smile"></i> ${emotion}</span>` : '';
+    msg.innerHTML = `<div>${text}</div><div class="msg-meta">${emotionHtml}<span>${time}</span></div>`;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// ========== Logs ==========
+function addLog(tag, msg) {
+    const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="log-time">${time}</span><span class="log-tag ${tag}">${tag.toUpperCase()}</span><span class="log-msg">${msg}</span>`;
+    logsContent.appendChild(entry);
+    logsContent.scrollTop = logsContent.scrollHeight;
+}
+
+// Init logs
+addLog('sys', 'UI initialized - Xiao Meng v2.0');
+addLog('sys', 'WebSocket connection ready');
+addLog('mem', 'Memory system loaded (short-term + mid-term)');
+
+// ========== Audio VAD (simplified) ==========
+let audioContext, mediaStream, processor;
+let audioChunks = [];
+let silenceStart = null;
+let speechStart = null;
+let isSpeakingDetected = false;
+
+const VAD_THRESHOLD = 0.02;
+const SILENCE_TIMEOUT = 1500;
+const MIN_SPEECH_DURATION = 500;
+const BARGE_IN_THRESHOLD = 0.025;
+
+async function startListening() {
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const source = audioContext.createMediaStreamSource(mediaStream);
+        processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+        processor.onaudioprocess = (e) => {
+            const data = e.inputBuffer.getChannelData(0);
+            const volume = getVolume(data);
+
+            // Update UI
+            volumeFill.style.width = Math.min(100, volume * 500) + '%';
+            updateWaveform(volume);
+
+            // Barge-in
+            if (state.isPlaying && volume > BARGE_IN_THRESHOLD) {
+                addLog('sys', 'Barge-in detected, stopping playback');
+                // TODO: stop audio playback
+            }
+
+            // VAD
+            if (volume > VAD_THRESHOLD) {
+                if (!isSpeakingDetected) {
+                    isSpeakingDetected = true;
+                    speechStart = Date.now();
+                    audioChunks = [];
+                    setMode('listening');
+                    addLog('asr', 'Speech detected, recording...');
+                }
+                silenceStart = null;
+                audioChunks.push(new Float32Array(data));
+            } else if (isSpeakingDetected) {
+                if (!silenceStart) silenceStart = Date.now();
+                audioChunks.push(new Float32Array(data));
+
+                if (Date.now() - silenceStart > SILENCE_TIMEOUT && Date.now() - speechStart > MIN_SPEECH_DURATION) {
+                    isSpeakingDetected = false;
+                    const totalLen = audioChunks.reduce((s, c) => s + c.length, 0);
+                    const merged = new Float32Array(totalLen);
+                    let offset = 0;
+                    audioChunks.forEach(c => { merged.set(c, offset); offset += c.length; });
+
+                    const wavBlob = encodeWAV(merged, audioContext.sampleRate);
+                    processVoice(wavBlob);
+                    audioChunks = [];
+                }
+            }
+        };
+
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+        state.isListening = true;
+        setMode('listening');
+        addLog('asr', 'Microphone activated, VAD enabled');
+
+    } catch (err) {
+        console.error('Mic error:', err);
+        addLog('sys', `Microphone access denied: ${err.message}`);
+    }
+}
+
+function stopListening() {
+    state.isListening = false;
+    if (processor) { processor.disconnect(); processor = null; }
+    if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    if (audioContext) { audioContext.close(); audioContext = null; }
+    setMode('idle');
+    volumeFill.style.width = '0%';
+    addLog('asr', 'Microphone deactivated');
+}
+
+function getVolume(buffer) {
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i++) sum += Math.abs(buffer[i]);
+    return sum / buffer.length;
+}
+
+function encodeWAV(samples, sampleRate) {
+    const buf = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buf);
+    const write = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+    write(0, 'RIFF'); view.setUint32(4, 36 + samples.length * 2, true);
+    write(8, 'WAVE'); write(12, 'fmt '); view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+    write(36, 'data'); view.setUint32(40, samples.length * 2, true);
+    for (let i = 0; i < samples.length; i++) {
+        const s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+    return new Blob([view], { type: 'audio/wav' });
+}
+
+// ========== Voice Processing Pipeline ==========
+async function processVoice(wavBlob) {
+    setMode('processing');
+    resetWorkflow();
+    const startTime = Date.now();
+
+    try {
+        // Step 1: ASR
+        setWorkflowStep('asr', 'active');
+        addLog('asr', 'Sending audio to FunASR...');
+        const t0 = Date.now();
+        const formData = new FormData();
+        formData.append('audio', wavBlob, 'recording.wav');
+
+        // TODO: Replace with actual API call
+        // const response = await fetch('http://localhost:3000/api/chat', { method: 'POST', body: formData });
+        // Simulate delay
+        await new Promise(r => setTimeout(r, 800));
+        const userText = '主人说的内容...';
+        setWorkflowStep('asr', 'done', Date.now() - t0);
+        addLog('asr', `Recognized: "${userText}"`);
+
+        // Step 2: LLM
+        setWorkflowStep('llm', 'active');
+        addLog('llm', 'Thinking...');
+        const t1 = Date.now();
+        await new Promise(r => setTimeout(r, 1200));
+        const replyText = '小梦的回复...';
+        setWorkflowStep('llm', 'done', Date.now() - t1);
+        addLog('llm', `Reply: "${replyText}"`);
+
+        // Step 3: Memory
+        setWorkflowStep('memory', 'active');
+        addLog('mem', 'Retrieving relevant memories...');
+        const t2 = Date.now();
+        await new Promise(r => setTimeout(r, 300));
+        setWorkflowStep('memory', 'done', Date.now() - t2);
+        addLog('mem', 'Memory retrieved (2 nodes, relevance: 0.92)');
+
+        // Step 4: TTS
+        setWorkflowStep('tts', 'active');
+        addLog('tts', 'Generating speech...');
+        const t3 = Date.now();
+        await new Promise(r => setTimeout(r, 600));
+        setWorkflowStep('tts', 'done', Date.now() - t3);
+        addLog('tts', `Audio generated (${(Math.random() * 50 + 20).toFixed(1)}KB)`);
+
+        // Update UI
+        addMessage('user', userText);
+        setEmotion('开心', 0.95);
+        addMessage('assistant', replyText, '开心');
+        addLog('sys', `Pipeline complete in ${Date.now() - startTime}ms`);
+        $('footerLatency').textContent = `LATENCY: ${Date.now() - startTime}ms`;
+
+    } catch (err) {
+        addLog('sys', `Error: ${err.message}`);
+        resetWorkflow();
+    }
+
+    setMode('idle');
+}
+
+// ========== Text Input ==========
+async function processText(text) {
+    if (!text.trim()) return;
+    textInput.value = '';
+    addMessage('user', text);
+    setMode('processing');
+    resetWorkflow();
+
+    const startTime = Date.now();
+    addLog('llm', `Processing text: "${text.substring(0, 30)}..."`);
+
+    try {
+        setWorkflowStep('llm', 'active');
+        const t0 = Date.now();
+        // TODO: Actual API call
+        await new Promise(r => setTimeout(r, 1000));
+        const reply = '小梦的回复...';
+        setWorkflowStep('llm', 'done', Date.now() - t0);
+
+        setWorkflowStep('memory', 'active');
+        addLog('mem', 'Updating memory...');
+        await new Promise(r => setTimeout(r, 200));
+        setWorkflowStep('memory', 'done', 200);
+
+        setWorkflowStep('tts', 'active');
+        addLog('tts', 'Generating audio...');
+        await new Promise(r => setTimeout(r, 500));
+        setWorkflowStep('tts', 'done', 500);
+
+        setEmotion('开心', 0.92);
+        addMessage('assistant', reply, '开心');
+        addLog('sys', `Done in ${Date.now() - startTime}ms`);
+        $('footerLatency').textContent = `LATENCY: ${Date.now() - startTime}ms`;
+
+    } catch (err) {
+        addLog('sys', `Error: ${err.message}`);
+    }
+
+    setMode('idle');
+}
+
+// ========== Event Listeners ==========
+micBtn.addEventListener('click', () => {
+    if (state.isListening) stopListening();
+    else startListening();
+});
+
+sendBtn.addEventListener('click', () => processText(textInput.value));
+
+textInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        processText(textInput.value);
+    }
+});
+
+$('clearChat').addEventListener('click', () => {
+    chatMessages.innerHTML = '';
+    addLog('sys', 'Chat cleared');
+});
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+
+// ========== Init ==========
+addLog('sys', 'Xiao Meng Emotional Companion UI loaded');
+addLog('mem', 'Memory service: local JSON (short/mid/long term)');
+addLog('llm', 'LLM router: MiMo (primary) + Kimi (fallback)');
+addLog('tts', 'TTS provider: MiMo TTS (emotion tags enabled)');
+setEmotion('平静', 0.8);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+# Docker 相关文件
+.dockerignore
+
+# 依赖目录
+node_modules/
+.venv/
+__pycache__/
+
+# 日志文件
+logs/
+*.log
+
+# 环境变量（不要打包到镜像）
+.env
+.env.local
+.env.*.local
+
+# Git 相关
+.git/
+.gitignore
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 测试文件
+test/
+tests/
+*.test.js
+*.spec.js
+
+# 文档（可选，如果不需要在容器中）
+docs/
+*.md
+!README.md
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# OS 文件
+.DS_Store
+Thumbs.db
+
+# 构建产物
+dist/
+build/
+
+# 其他
+.claude/
+coverage/
+.nyc_output/

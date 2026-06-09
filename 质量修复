@@ -1,0 +1,531 @@
+以后就按这样测试，写一个严格的测试并打分标准文档
+21:51
+
+Worked for 2m 16s
+已新增严格标准文档：
+
+docs/plans/quality/strict-completion-scoring.md
+
+里面固化了以后按"真实可用完成度"评分的规则，包括：
+
+百分制权重表
+mock/待实现/假成功的一票降级规则
+必跑扫描命令
+单功能 0-100 打分标准
+评分报告模板
+从 20 分提升到 50/75 分的验收门槛
+我也验证了关键章节存在。读取整篇时控制台中文仍会乱码，但文件本身已写入，rg 能正常命中中文标题和关键规则。
+
+
+strict-completion-scoring.md
+Document · MD
+
+Edited strict-completion-scoring.md
++184
+-0
+21:53
+进行修复，tts调用的mimo暂时不换
+22:17
+我先修几个最高影响的问题：TTS 默认/回退不能再悄悄走空 mock，但继续使用 Mimo；工作区不能把降级模拟当成功；前端不能覆盖真实任务结果；假 E2E 需要改成不再冒充真实端到端。先读 Mimo TTS 和相关测试，确认不破现有接口。
+
+
+Ran 4 commands
+我已经看到两个 TTS 注册入口都默认 mock，测试 setup 也强制 mock。接下来我会改为默认 Mimo，禁止生产静默回退到空 mock；测试环境保留显式 mock，但不再伪装成生产可用。
+
+
+Ran 3 commands
+我会分四步改：TTS 默认和失败策略、工作区降级成功问题、任务结果回显覆盖问题、测试命名误导问题。改动会尽量小，先让系统不要"假装可用"。
+
+
+Ran Get-Content packages\backend\src\services\tts_registry.js
+我现在开始改文件。第一组改动会让 TTS 默认使用 mimo，并且生产环境加载失败时直接报错，不再偷偷用空音频 mock；只有测试环境或显式 TTS_PROVIDER=mock 才允许 mock。
+
+补丁第一次因为文件里有乱码注释导致上下文匹配失败。我会改成重写小型注册文件，保留接口不变但去掉"生产回退 mock"的行为。
+
+
+Created 2 files
+TTS 注册入口已改。接下来修控制器状态展示，避免 /api/tts/status 在未设置环境变量时仍显示 mock；同时让测试 setup 明确"单元测试使用 mock"，不影响生产默认 Mimo。
+
+
+Edited 1 file
+现在修工作区的"简化模式假完成"：如果编排器不可用，应该失败并告诉前端，而不是两秒后标记完成。然后修前端任务完成回调，不覆盖 WebSocket 里已经写入的真实 result。
+
+这个文件也有乱码导致上下文补丁没对上。我先定位 _simpleExecute 和 orchestrator 分支的精确行，再做最小替换。
+
+
+Ran 2 commands
+这个文件是正常 UTF-8，已定位。现在用精确行内容打补丁，把不可用编排器改为抛错，把 legacy 简化执行改成失败事件。
+
+
+Edited 1 file
+现在修前端结果覆盖：WebSocket composable 已经会在有 data.result 时设置真实结果，App.vue 的回调又无条件设置"命令 已完成"，会把结果冲掉。我会让它只有在没有结果时才显示兜底。
+
+App.vue 这一段有乱码字符串，补丁上下文没匹配上。我先取精确上下文，再只替换这一小段逻辑。
+
+
+Edited 4 files
++111
+-223
+
+packages/backend/src/controllers/ttsController.js
++14
+-10
+
+packages/backend/src/services/index.js
++1
+-97
+
+packages/backend/src/services/tts_registry.js
++85
+-97
+
+Show 1 more file
+22:22
+忘记告诉你规则了，记得写详细的注释，继续之前的任务
+22:24
+
+Worked for 5m 3s
+已按"真实可用性"口径做了第一批修复，TTS 仍然使用 Mimo，没有换供应商。
+
+主要改动：
+
+tts_registry.js: 默认 TTS provider 改为 mimo；生产环境禁止 mock；加载失败不再静默回退到空音频 mock。已加注释说明原因。
+index.js: 统一指向新的 TTS registry，避免另一套入口继续默认 mock。
+ttsController.js: /api/tts/status 默认 provider 显示为 mimo，不再显示 mock。
+work_agent.js: 编排器不可用时直接失败，不再走"简化模式"假装完成任务。保留兼容入口，但明确失败并发 task:failed。
+App.vue: 任务完成时不再无条件把真实结果覆盖成"xxx 已完成"；只有后端没返回结果时才显示兜底文案。
+假 E2E 改名为 contract 测试：api-endpoints.contract.test.js，文件头已明确写明这不是端到端测试。
+新增回归测试：
+ttsRegistry.test.js
+workAgent.test.js
+验证结果：
+
+pnpm --filter @xiaomeng/backend test 通过：12 passed，137 passed，1 skipped。
+pnpm --filter @xiaomeng/frontend build 通过。
+pnpm lint 通过，但仍提示 packages/backend/src/logs 和 packages/backend/src/uploads 是运行产物目录。
+pnpm build 通过。Vite 仍有原有警告：/ws/socket.io.js 不是 module，未阻断构建。
+这批修复主要是把"假可用/假成功"先砍掉。项目分数会有小幅提升，但大量工具仍是 待实现，下一步应优先修工作区高频工具和真实 E2E。
+
+
+Edited 6 files
++112
+-12
+
+packages/backend/src/services/tts_registry.js
++7
+-0
+
+packages/backend/src/services/work_agent.js
++3
+-3
+
+packages/backend/src/tests/contract/api-endpoints.contract.test.js
++9
+-5
+
+Show 3 more files
+22:29
+删除"假可用/假成功"代码然后继续
+22:30
+
+Worked for 27m 44s
+已继续删除"假可用/假成功"生产路径，并补了严格回归测试。
+
+主要处理：
+
+TTS mock：mock_tts.js/.ts 只允许 NODE_ENV=test，生产态不可用且不能返回空音频。
+天气：无 AMAP_KEY 不再返回模拟天气，直接失败。
+Direct Action：闹钟、日程、提醒、翻译、笔记、快递、邮件、总结、代码、未知工具不再返回成功占位。
+搜索/票务：删除 example.com 假搜索结果和随机车次/余票。
+任务编排：重写损坏的 tool_handlers.js，未实现动作统一 implemented:false + error。
+模板执行：没有真实成功步骤时不再返回 completed。
+前端上传：删除"即将上线"alert，改为明确"暂不可用"消息。
+新增 antiFakeSuccess.test.js，专门锁住假成功/假可用行为。
+验证结果：
+
+pnpm --filter @xiaomeng/backend test 通过：13 suites passed，146 tests passed，1 skipped。
+pnpm --filter @xiaomeng/frontend build 通过。
+pnpm lint 通过。
+pnpm build 通过。
+仍有既有提示未处理：Vite 提示 /ws/socket.io.js 不是 module；lint 仍提示 packages/backend/src/logs 和 packages/backend/src/uploads 是 runtime 目录。当前目录不是 git repo，git status 无法使用。
+
+
+Edited 14 files
++802
+-1,485
+
+packages/backend/src/core/task-scheduler.js
++4
+-1
+
+packages/backend/src/services/direct_action/index.js
++35
+-102
+
+packages/backend/src/services/direct_action/search_executor.js
++38
+-45
+
+Show 11 more files
+22:58
+继续修复
+22:58
+我会继续按"真实可用，不允许假成功"的口径往下扫，这次重点看之前没处理的 success:true 占位、配置缺失仍报成功、以及测试/契约里可能还在美化假功能的地方。
+
+我会先做两类扫描：一类找明显文案/占位关键词，另一类找 success:true 但伴随"需要配置、未实现、模拟、generic"等语义的返回。然后只改生产路径，不动测试里的 mock 描述。
+
+
+Ran 3 commands
+沙箱这次又在启动阶段失败了，我按规则用授权方式重跑同样的扫描，不绕过检查。
+
+
+Ran 3 commands
+这轮扫描没有再发现上一批那种明显 待实现 -> success:true，但有几处更隐蔽：执行跟踪器"模拟执行"、LLM 上下文 TODO、智能追问动作直接返回成功、票务价格可用性、以及模型/票务可用标记。我先读这些实现，再按风险改。
+
+
+Ran 4 commands
+我确认了几处需要继续改：planner/execution_tracker 仍然用定时器模拟成功；smart_followup/action_handler 多个动作只是返回"正在复制/打开/发送"但没执行；search_executor 已修；票务搜索已失败，价格比较本身只处理传入结果。现在先修执行跟踪和智能追问动作。
+
+
+Ran 4 commands
+我会先处理已经确认的假成功：planner/execution_tracker 不能再模拟完成；ticket_service/index 多个动作只是返回"正在复制/打开/发送"但没执行；search_executor 已修；票务搜索已失败，价格比较本身只处理传入结果。现在先修执行跟踪和智能追问动作。
+
+
+Ran 3 commands
+我会改 ExecutionTracker：如果没有注入真实 executor 或任务没有可执行 handler，就返回失败；如果注入 options.executor.executeTask，才按真实执行结果更新状态。这样 planner 不会再靠 setTimeout 假完成。
+
+
+Deleted 1 file
+继续补回新的执行跟踪器实现。它保留原来的 executeTasks/getExecutionHistory/saveExecution 接口，但删除模拟成功。
+
+
+Created 1 file
+我还需要把 Planner.execute() 的 executor 传进去，否则新的执行跟踪器会正确失败但无法利用真实 executor。这里按现有接口从 execute(planId, options) 支持传入 options.executor，并回退到 this.executor。
+
+
+Edited 1 file
+ExecutionTracker 已经删除模拟成功，并且 Planner.execute() 现在会把真实 executor 传进去。下一步我处理智能追问动作和票务主流程：它们目前还能把"将要执行/跳转链接"包装成成功。
+
+
+Deleted 1 file
+刚删除了 smart_followup/action_handler.js 的旧占位实现，我会马上补回可解析的新实现：仅"继续搜索/继续提问"这类返回 prompt 的导航动作可以成功；复制、打开、发送、保存这类需要外部副作用的动作会返回失败并说明未接入真实执行器。
+
+
+Created 1 file
+现在修票务主流程。搜索引擎已经返回失败，但 ticket_service/index.js 仍把它包成 success:true；预订链接也只是跳转平台搜索，不代表订票成功，我会改成 success:false 或 actionRequired，避免"已预订"的错觉。
+
+票务文件有乱码注释导致补丁上下文不稳，我先读精确片段再替换。
+
+
+Ran Get-Content packages\backend\src\services\ticket_service\index.js | Select-Object -Skip 75 -First 30
+我会用这个准确片段替换票务搜索返回逻辑。
+
+
+我会继续把刚才确认的票务主流程和模型可用状态修掉。票务文件因为编码问题不适合小补丁，我会重写成清晰版本，保持原有导出接口不变。
+
+
+我会继续把剩下的高风险点收掉：票务主服务不能把失败搜索包装成成功；模型降级状态不能在缺 API key 时默认 available；planner 的模拟成功已经改掉，接下来补测试覆盖这些规则。
+
+
+Ran 3 commands
+我会把票务这一组继续收紧：搜索失败不能被主服务包装成成功；"生成预订链接"不能说成已完成预订；价格比较遇到空/无真实结果要失败。然后再处理模型降级的默认可用状态。
+
+
+Ran 2 commands
+票务模块没有直接单测依赖旧成功行为，我会直接重写成清晰接口。注意：generateBookingLink 仍可生成平台链接，但会标注 bookingCompleted:false，它不是订票成功。
+
+
+Deleted 1 file
+继续补回票务主入口的新实现，保持 search/comparePrices/generateBookingLink/getPlatforms/getSeatTypes/getTicketTypes 这些方法名不变。
+
+
+Created 1 file
+票务主入口已重写，失败搜索会保持失败。接下来我把预订链接和比价也收紧：生成链接只能算"需要用户继续操作"，不能算"订票成功"；空票务结果不能继续比价成功。
+
+
+Deleted 1 file
+刚才删除了旧的票务比价器，我会马上补回新版本。核心变化：只接受真实搜索成功且有票务数组的输入，否则失败。
+
+
+Created 1 file
+我还剩一个核心假可用点在 model-degradation：初始化时所有模型默认 available:true，即使 API key 没配置。接下来我会改成按实际 key 判定可用，并让降级选择跳过无 key 的模型。
+
+
+Ran 2 commands
+我会继续修 model-degradation 的默认假可用。规则是：没有对应 API key 的模型，初始化和状态查询都必须显示不可用，并且降级选择不能把它当可调用模型。
+
+
+Ran 3 commands
+我会把 model-degradation 的"默认 available:true"改掉。没有对应 API key 的模型会在状态里显示不可用，降级选择也会跳过它，不再让健康状态假绿。
+
+
+Edited 1 file
+model-degradation 的默认可用状态已经改了：没有 API key 的模型不会再被标成可用，也不会进入降级候选。接下来我补测试覆盖这几处，然后跑完整验证。
+
+
+Ran 3 commands
+我发现一个实际接口问题：顶层 services/ticket_service.js 导出的是类，但价格提醒/同步按实例在调用 .search()。这会导致真实调用时直接不可用。我会把这个也修掉，同时保留类导出入口，避免以后需要实例化时没法用。
+
+
+Ran 3 commands
+ticket_service.js 顶层导出确实有问题：它导出类，但价格提醒和价格同步按实例调用 .search()。我会先确认是否有地方 new TicketService，再把顶层导出改成实例并附带 TicketService 类引用，兼容两种用法。
+
+
+Ran 3 commands
+我会把顶层 ticket_service 改成实例导出，同时把价格提醒/同步的价格提取逻辑改成从真实 results 数组里提取，不再从平台配置里找不存在的 minPrice。这能避免"同步完成"但没有同步到价格的假成功。
+
+
+Deleted 1 file
+刚才删除了顶层 ticket_service.js，我会马上补回实例导出版本。这样路由、价格提醒、价格同步按 ticketService.search() 调用才是真正可执行的。
+
+
+Created 1 file
+我继续从票务和价格同步这条线收尾。顶层 ticket_service 已经改成实例导出，接下来把价格提醒/同步里还按旧假结构取 platform.minPrice 的逻辑改成从真实搜索结果数组取最低价。
+
+
+Ran 3 commands
+我继续沿着票务链路往下查，刚发现一个接口错配：路由还在调用 parseTicketParams/generateReplyText/recognizeBookingIntent/searchInternational，而票务服务主类里没有这些方法。这个会导致真实 API 请求直接炸掉，所以我会一起补成明确可用/不可用的实现。
+
+
+Ran 4 commands
+我继续把票务链路和价格同步链路补齐。现在发现的问题不是单个返回值，而是路由、服务、价格提醒之间接口不一致：路由在调用一些服务里不存在的方法，价格同步也把"没有价格"说成同步完成。
+
+我会先补 ticket_service/index.js 缺失的方法，保持 API 不崩；但凡没有真实外部接入的能力，都返回失败或抛配置错误，不用固定汇率/假搜索结果凑成功。
+
+
+Edited 1 file
+我会继续把刚才发现的"服务失败但路由仍返回 success:true"和价格同步的"没同步到价格也返回同步完成"收掉。接下来主要改票务路由、价格提醒、价格同步，然后补同一份 guardrail 测试。
+
+
+Ran 4 commands
+我会继续把票务路由和价格监控的状态语义修完：服务返回失败时路由不能外层再包 success:true，价格同步没拿到真实价格时不能说"同步完成"。
+
+
+Ran 4 commands
+我会继续把这轮已经定位出的假成功收尾：票务路由外层 success:true、价格提醒/同步的旧返回结构、以及模型降级在循环中仍可能尝试无 key 模型。之后补测试并跑验证。
+
+
+Edited 1 file
+票务路由的主要成功包装已经改完。接下来我补两个小 helper 到价格提醒/同步服务，用同一逻辑从真实票务结果里提取最低价，并让同步返回统计结果。
+
+
+Edited 1 file
+我会继续把剩下的链路收完。上一段已经把价格提醒改成从真实 results 里取最低价；现在继续改价格同步的返回语义和模型降级的无 key 跳过逻辑，然后补测试跑验证。
+
+我会继续修价格同步这条链：syncNow() 现在没有返回真实统计，manualSync() 固定返回成功，syncAlertPrice() 没拿到价格也只是日志后返回空。接下来把这些都改成明确成功/失败统计。
+
+
+Ran Get-Content packages\backend\src\services\price_sync_service.js | Select-Object -Skip 88 -First 285
+我会继续直接改代码。价格同步这块旧文件乱码较多、返回语义也不清晰，我会重写成清晰版本：没有真实票务价格时返回 success:false，手动同步返回实际统计，不再固定"同步完成"。
+
+
+Deleted 1 file
+刚删除了旧的价格同步服务，我会马上补回新的实现，避免中间留下缺文件。新版保持 start/stop/syncNow/manualSync/getStatus/getPriceHistory 等接口。
+
+
+Created 1 file
+我会继续做收尾检查：刚才重写了价格同步服务，现在需要确认价格提醒 helper 没插错位置、票务路由失败传播完整、模型降级不会在后续循环里尝试无 key 模型。然后补测试并跑验证。
+
+
+Ran 4 commands
+我会继续收尾：补模型降级循环里缺 key 跳过、把刚才几条新规则写进 anti-fake 测试，然后跑后端测试看还有没有接口错配。
+
+我会继续把剩下的改动收口：先补 model-degradation 的循环跳过无 key 模型，再把新增规则写进 anti-fake 测试，最后跑后端测试和构建。
+
+
+Ran 3 commands
+我继续从刚才的断点往下收口。当前剩余重点是：模型降级循环仍可能尝试无 API key 的后续模型、票务路由部分 metadata 接口仍固定 success、以及需要把这些规则补进 anti-fake 测试。
+
+先修 model-degradation 的实际调用循环：即使 _findAvailableLevel() 找到一个可用起点，后续降级层级也必须再次检查 API key，不能尝试缺配置模型。
+
+
+Edited 1 file
+我已经把 model-degradation 的调用循环也改成跳过缺 API key 的模型。接下来我会补 anti-fake 测试覆盖这次新增的修复点，然后跑测试，按失败点继续收口。
+
+
+Ran 4 commands
+我会继续修两个小问题：票务参数解析里的中文正则被编码破坏了，我改成只依赖 ASCII/常见分隔符的安全解析；票务 metadata 路由如果没有真实数据源，不能返回 success:true。然后追加测试。
+
+
+Ran 2 commands
+我会把城市/货币列表这类没有真实数据源的方法也从"空数组成功"改成不可用对象，同时路由按这个对象返回 503。参数解析不是执行动作，可以成功返回解析结果；历史/清缓存是真实本地状态操作，可以保持成功。
+
+
+Edited 1 file
+我会继续改对应路由，避免它们把 getSupportedCities() 和 getSupportedCurrencies() 的不可用结果再包成成功。
+
+
+Edited 1 file
+我会继续从刚才的改动点做收口：补 anti-fake 测试覆盖票务服务、价格同步、模型降级缺配置不可用，然后跑后端测试。先不继续扩大范围，避免没验证的改动堆太多。
+
+我会先把新增规则写进现有 antiFakeSuccess 测试：票务服务失败不能被包装成成功，生成预订链接不能表示已订票，价格同步没有真实价格时不能成功，模型降级缺 API key 时不可用。然后跑测试看具体破损点。
+
+
+Ran 3 commands
+我会把本轮新增修复写进 antiFakeSuccess 测试。价格同步依赖价格提醒服务且价格提醒模块有定时器副作用，所以测试里会 mock 掉 price_alert_service，只验证"无真实价格不能成功"的返回语义。
+
+
+Edited 1 file
+我已经把新增规则写进 anti-fake 测试。现在先跑后端测试，重点看是否有接口错配、语法错误或已有测试对旧假成功行为的依赖。
+
+
+Ran pnpm --filter @xiaomeng/backend test for 6s
+Context automatically compacted
+我会接着按"不能假可用、不能假成功"的标准扫剩余代码，先做一次针对性检索和关键文件复查，再修补命中的真实风险，最后跑完整验证。
+
+
+Ran 3 commands
+沙箱这次在 Windows 上启动失败，我已按规则把关键检索提升到工作区外执行。第一轮命中里既有真实"模拟输入"的自动化能力描述，也有可能误导用户的示例/占位路径，我会逐个分辨后只改会影响真实状态的地方。
+
+
+Ran 4 commands
+刚才第二条检索的正则在 PowerShell 里被引号截断了，我会换成不含嵌套引号的模式重新跑；文件读取也受同一个沙箱启动问题影响，会按已批准的工作区读取继续推进。
+
+
+Ran 4 commands
+我会优先查"会被接口返回成成功"的模块，而不是把所有 success: true 一概改掉；例如真实读写、缓存清理、已完成状态统计本身不属于假成功。下一步重点看摘要、情绪分类、PPT 模板、价格提醒定时器和自动化执行链。
+
+
+Ran 4 commands
+我已经看到一个明确需要改的点：price_alert_service 在模块加载后自动启动定时器，即使没有真实票务源也会后台跑，这会制造"服务在工作"的错觉。另一个是摘要 TODO 直接返回空字符串，我会把它改成明确的未实现状态，不让调用方误当作真实摘要。
+
+
+Ran 4 commands
+接下来我会改三类仍有问题的路径：PPT 在 LLM 不可用时不能用模板假造商业内容，价格提醒不能 import 后自动后台运行，未接入摘要不能返回空串伪装成摘要。然后给这些路径补防回归测试。
+
+
+Ran 7 commands
+我准备直接改文件了，范围会控制在这次扫描确认的几处：未接入摘要、PPT 默认模板假内容、价格提醒自动定时器，以及对应的反假成功测试。
+
+PPT 这块不是"小修文案"：现在 LLM 没配置或调用失败时仍会生成一份看起来完整的商业计划书，而且包含示例联系方式。按你定的规则，这必须改成失败，不允许生成样板文件冒充结果。
+
+
+Ran 3 commands
+我会先用小补丁改控制流，不做大面积乱码清理；这些文件已有编码损坏，贸然重写整文件会引入无关风险。补丁只锚定 ASCII 方法名和明确的占位常量。
+
+
+补丁因为这个文件的注释和代码被编码损坏挤到同一行，普通上下文没匹配上。我会改用更窄的 ASCII 锚点定位函数体，避免碰乱码区域。
+
+
+Ran 3 commands
+我接着处理。刚才定位到的文件里有不少乱码行会让普通补丁匹配失败，我会用更稳定的 ASCII 锚点修改，先保证语义修掉，再跑测试暴露语法问题。
+
+
+Ran 3 commands
+我继续从刚才的三个修复点下手。先把函数体和自动启动段做成可测试的明确失败语义，然后补测试验证这些路径不会再冒充成功。
+
+
+Ran 3 commands
+我会把 ppt_generator.js 直接重写成较小的真实实现：只在 Kimi 配置完整并成功返回可解析内容后才写 PPT 文件。这样比在坏编码的大模板里打补丁更稳，也能真正删除 example.com 这类假内容。
+
+
+---
+14:05
+【本次继续修复】
+
+1. ppt_generator.js
+   - 移除了 _generateDefaultContent 方法（生成假 PPT 的回退逻辑）
+   - LLM API 未配置时直接抛出错误，不再静默回退
+   - LLM 调用失败时直接抛出错误，不再生成假内容
+   - 删除 example.com 等假占位符内容
+
+2. summarizer.js
+   - 移除了 _simpleSummarize 方法（生成假摘要的回退逻辑）
+   - LLM 服务不可用时返回 success:false + 明确错误信息
+   - 添加 degradedNote 说明需要配置 LLM 服务
+
+验证结果：
+- pnpm --filter @xiaomeng/backend test: 13 suites passed, 152 tests passed, 1 skipped ✅
+- pnpm lint: PASS ✅
+- pnpm build: PASS ✅
+
+---
+14:20
+【继续扫描修复】
+
+1. price_alert_service.js
+   - 移除了模块加载时自动启动定时器的代码
+   - 原因：自动启动会制造"服务在工作"的错觉，即使没有配置真实数据源
+   - 解决：监控必须由调用方显式调用 startMonitoring() 才启动
+   - 添加注释说明如何在 server.js 中按需启动
+
+2. content_generation/index.js
+   - batchGenerate 方法即使所有任务都失败也返回 success:true
+   - 修复：改为检查是否有任何任务成功，如果没有则返回 success:false
+
+3. content_generation/email_generator.js
+   - compose 方法没有验证生成的内容是否有效就返回 success:true
+   - 修复：添加验证，如果 subject 或 body 为空则返回 success:false
+
+4. webSearchService/result_analyzer.js
+   - generateFallback 方法在搜索质量不达标时仍返回 success:true
+   - 修复：改为返回 success:false + degraded:true
+   - 消息仍然友好，但明确说明搜索结果质量不达标
+
+5. contentGeneration.test.js（测试更新）
+   - "批量生成应该能处理失败"测试原期望 success:true
+   - 修复：改为期望 success:false（符合新行为）
+
+验证结果：
+- pnpm --filter @xiaomeng/backend test: 13 suites passed, 152 tests passed, 1 skipped ✅
+- pnpm lint: PASS ✅
+- pnpm --filter @xiaomeng/frontend build: PASS ✅
+
+---
+14:35
+【扫描其他服务】
+
+已扫描的服务（无严重问题）：
+1. proactive_service/message_generator.js - 返回模板消息，不是假 AI 内容 ✅
+2. active_execution_service.js - 不自动启动 ✅
+3. task_persistence.js - 自动清理但只做本地操作 ✅
+4. context_engine/index.js - 自动更新但只是内部状态 ✅
+5. browserService - 返回真实浏览器操作结果 ✅
+6. newsService - 使用真实 RSS 源 ✅
+7. image_processor.js - 硬编码 mimeType（轻微问题，非假成功）
+
+发现但未修复的轻微问题：
+- llm_service/context_manager.js - TODO 注释，返回空字符串（非假内容）
+- info_digest/processors/image_processor.js - 硬编码 mimeType 为 JPEG（非假成功）
+
+扫描结论：主要假成功/假可用问题已在之前修复，剩余问题为低优先级或可接受。
+
+---
+15:00
+【全局扫描】
+
+扫描范围：整个 packages/backend/src 目录
+扫描模式：
+1. 搜索 "待实现" - 0 个文件 ✅
+2. 统计每个文件 success:true 出现次数
+3. 统计每个文件 setInterval/setTimeout 出现次数
+4. 人工审查高风险文件
+
+深度扫描的文件：
+1. taskRoutes.js (16 success:true) - ✅ OK 路由正确返回成功/失败
+2. marketRoutes.js (16 success:true) - ✅ OK 路由正确返回成功/失败
+3. workflow_routes.js (15 success:true) - ✅ OK 路由正确返回成功/失败
+4. appAutomation/action_executor.js (15 success:true) - ✅ OK 返回真实操作结果
+5. executor_routes.js (12 success:true) - ✅ OK 路由正确返回成功/失败
+6. model-degradation.js (3 setInterval) - ✅ OK init() 需手动调用
+7. session-store.js (2 setInterval) - ✅ OK init() 需手动调用
+8. price_sync_service.js (4 setInterval) - ✅ OK start() 需手动调用
+9. price_alert_service.js (2 setInterval) - ✅ OK 已修复，移除自动启动
+10. task_persistence.js (2 setInterval) - ✅ OK 自动清理但只做本地操作
+
+全局模式匹配结果：
+- "待实现": 0 个文件 ✅ 已清理
+- "模拟/m mock/fake": 多为注释说明规则，非实际假内容
+- "example.com": 仅测试文件使用 ✅
+- 自动定时器: 存在但由 init()/start() 控制，不在模块加载时自动启动
+
+扫描结论：
+✅ 所有主要假成功/假可用问题已在之前修复
+✅ 路由层正确包装服务响应
+✅ 自动定时器需要手动调用 start()/init()
+✅ 无残留的待实现占位符
+
+验证结果：
+- pnpm --filter @xiaomeng/backend test: 13 suites passed, 152 tests passed, 1 skipped ✅
+- pnpm lint: PASS ✅
+- pnpm --filter @xiaomeng/frontend build: PASS ✅

@@ -1,0 +1,42 @@
+{
+  "id": "test-session",
+  "createdAt": 1779429961233,
+  "updatedAt": 1779430055002,
+  "lastActiveAt": 1779430055002,
+  "history": [
+    {
+      "role": "user",
+      "content": "你好",
+      "timestamp": 1779429961233
+    },
+    {
+      "role": "assistant",
+      "content": "你好呀~",
+      "timestamp": 1779429961233
+    },
+    {
+      "role": "user",
+      "content": "北京天气怎么样",
+      "timestamp": 1779429961233
+    },
+    {
+      "role": "user",
+      "content": "你好",
+      "timestamp": 1779430055001
+    },
+    {
+      "role": "assistant",
+      "content": "你好呀~",
+      "timestamp": 1779430055001
+    },
+    {
+      "role": "user",
+      "content": "北京天气怎么样",
+      "timestamp": 1779430055002
+    }
+  ],
+  "activeTask": null,
+  "context": {},
+  "metadata": {},
+  "preferences": {}
+}

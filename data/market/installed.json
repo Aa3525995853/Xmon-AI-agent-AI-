@@ -1,0 +1,27 @@
+{
+  "news": {
+    "version": "1.0.0",
+    "installedAt": 1780815852951,
+    "official": true
+  },
+  "weather": {
+    "version": "1.0.0",
+    "installedAt": 1780815852951,
+    "official": true
+  },
+  "system": {
+    "version": "1.0.0",
+    "installedAt": 1780815852951,
+    "official": true
+  },
+  "browser": {
+    "version": "1.0.0",
+    "installedAt": 1780815852951,
+    "official": true
+  },
+  "llm": {
+    "version": "1.0.0",
+    "installedAt": 1780815852951,
+    "official": true
+  }
+}

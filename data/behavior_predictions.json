@@ -1,0 +1,152 @@
+{
+  "actionHistory": [
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "calm",
+      "timestamp": 1780930604376,
+      "hour": 22,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "calm",
+      "timestamp": 1780930728431,
+      "hour": 22,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "\n.friendly { color: #ff6b6b; font-weight: bold; }\n.cute { color: #4ecdc4; font-style: italic; }\n",
+      "timestamp": 1780931059501,
+      "hour": 23,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "calm",
+      "timestamp": 1780931145789,
+      "hour": 23,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "calm",
+      "timestamp": 1780931288962,
+      "hour": 23,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "\n💡 你更喜欢自然风光还是人文历史呢？我可以帮你调整行程重点哦～\n",
+      "timestamp": 1780931447175,
+      "hour": 23,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "温柔",
+      "timestamp": 1780932099848,
+      "hour": 23,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "温柔",
+      "timestamp": 1780932157302,
+      "hour": 23,
+      "dayOfWeek": 1,
+      "sessionId": "default"
+    },
+    {
+      "type": "chat",
+      "intent": "chat",
+      "tools": [],
+      "topic": "",
+      "emotion": "平静",
+      "timestamp": 1780996451000,
+      "hour": 17,
+      "dayOfWeek": 2,
+      "sessionId": "default"
+    }
+  ],
+  "transitionMatrix": {
+    "chat:chat": {
+      "chat:chat": 5
+    }
+  },
+  "timeActionMap": {
+    "22_1": {
+      "chat:chat": 2
+    },
+    "23_1": {
+      "chat:chat": 6
+    },
+    "17_2": {
+      "chat:chat": 1
+    }
+  },
+  "userHabits": {
+    "chat_chat": {
+      "count": 9,
+      "avgHour": 22.11111111111111,
+      "hours": [
+        22,
+        22,
+        23,
+        23,
+        23,
+        23,
+        23,
+        23,
+        17
+      ],
+      "commonEmotions": {
+        "calm": 4,
+        "\n.friendly { color: #ff6b6b; font-weight: bold; }\n.cute { color: #4ecdc4; font-style: italic; }\n": 1,
+        "\n💡 你更喜欢自然风光还是人文历史呢？我可以帮你调整行程重点哦～\n": 1,
+        "温柔": 2,
+        "平静": 1
+      },
+      "commonTopics": {},
+      "lastSeen": 1780996451000
+    }
+  },
+  "predictions": [],
+  "stats": {
+    "totalActions": 9,
+    "correctPredictions": 0,
+    "totalPredictions": 0,
+    "accuracy": 0
+  }
+}

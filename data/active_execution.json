@@ -1,0 +1,20 @@
+{
+  "tasks": {
+    "task_1780890978369_ce69teaur": {
+      "id": "task_1780890978369_ce69teaur",
+      "name": "持久化测试",
+      "schedule": "0 8 * * *",
+      "action": "notification",
+      "params": {
+        "message": "测试"
+      },
+      "enabled": true,
+      "createdAt": "2026-06-08T03:56:18.369Z",
+      "lastRun": null,
+      "runCount": 0,
+      "autoExecute": false
+    }
+  },
+  "triggers": {},
+  "userPreferences": {}
+}

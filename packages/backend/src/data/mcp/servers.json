@@ -1,0 +1,80 @@
+[
+  {
+    "id": "filesystem",
+    "name": "文件系统",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\admin\\OneDrive\\Desktop", "C:\\Users\\admin\\Desktop", "C:\\Users\\admin\\Documents", "C:\\Users\\admin\\Downloads"],
+    "enabled": true
+  },
+  {
+    "id": "memory",
+    "name": "知识图谱记忆",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-memory"],
+    "enabled": true
+  },
+  {
+    "id": "sequential-thinking",
+    "name": "顺序思考",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+    "enabled": true
+  },
+  {
+    "id": "fetch",
+    "name": "网页抓取(TypeScript)",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "mcp-server-fetch-typescript"],
+    "enabled": false
+  },
+  {
+    "id": "brave-search",
+    "name": "Brave搜索",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+    "env": {
+      "BRAVE_API_KEY": ""
+    },
+    "enabled": false
+  },
+  {
+    "id": "github",
+    "name": "GitHub",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-github"],
+    "env": {
+      "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+    },
+    "enabled": false
+  },
+  {
+    "id": "puppeteer",
+    "name": "浏览器自动化",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+    "enabled": false
+  },
+  {
+    "id": "sqlite",
+    "name": "SQLite数据库",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-sqlite"],
+    "enabled": false
+  },
+  {
+    "id": "everything",
+    "name": "MCP测试服务",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-everything"],
+    "enabled": false
+  }
+]

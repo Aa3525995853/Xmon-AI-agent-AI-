@@ -1,0 +1,9 @@
+{
+    "name": "system",
+    "version": "1.0.0",
+    "type": "js",
+    "description": "系统控制插件",
+    "capabilities": ["system:launch_app", "system:play_music", "system:open_url", "system:search_web", "system:search_shopping", "system:search_video", "system:get_system_info", "system:create_folder", "system:take_screenshot", "system:search_local_files"],
+    "dependencies": [],
+    "config": {}
+}

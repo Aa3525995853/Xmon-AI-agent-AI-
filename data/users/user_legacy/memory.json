@@ -1,0 +1,40 @@
+{
+  "environment": {
+    "lastLocation": "unknown",
+    "deviceType": "pc",
+    "ambientCues": []
+  },
+  "time": {
+    "lastActive": 1780933285964,
+    "sessionCount": 6,
+    "dailyActiveHours": []
+  },
+  "memory": {
+    "topics": [],
+    "facts": [],
+    "preferences": []
+  },
+  "emotion": {
+    "recentEmotions": [
+      "neutral",
+      "neutral",
+      "neutral",
+      "neutral",
+      "neutral",
+      "neutral"
+    ],
+    "dominantEmotion": "neutral",
+    "emotionTrend": "stable"
+  },
+  "topic": {
+    "current": null,
+    "history": [],
+    "depth": 0
+  },
+  "relationship": {
+    "level": 1,
+    "trust": 0.5900000000000001,
+    "familiarity": 0.34500000000000003,
+    "recentInteractions": 9
+  }
+}

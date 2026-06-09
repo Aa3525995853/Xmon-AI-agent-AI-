@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\projects\\xiaomeng\\logs\\.e1a07f15b20f86832669f2e539d653e7f55980b2-audit.json",
+    "files": [
+        {
+            "date": 1780748254875,
+            "name": "D:\\projects\\xiaomeng\\logs\\app-2026-06-06.log",
+            "hash": "81081e4e3e75d20c18e4e4bd86f1e3213f668b796eeff5034fec07390772869a"
+        },
+        {
+            "date": 1780799240205,
+            "name": "D:\\projects\\xiaomeng\\logs\\app-2026-06-07.log",
+            "hash": "becb6f02388e58dcac654f29f745c59ad2b85bd248ccae48d977ac42f6f2687e"
+        },
+        {
+            "date": 1780888712552,
+            "name": "D:\\projects\\xiaomeng\\logs\\app-2026-06-08.log",
+            "hash": "d444ba3ae2d665851bfef456461d466818c72b84d3a45e75aa793c9241af0354"
+        },
+        {
+            "date": 1780973209204,
+            "name": "D:\\projects\\xiaomeng\\logs\\app-2026-06-09.log",
+            "hash": "e5d08720d170c46e581c8a0d90437b23ea48e87ccfeb3ae914d5aead1020ab76"
+        }
+    ],
+    "hashType": "sha256"
+}

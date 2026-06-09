@@ -1,0 +1,17 @@
+{
+  "name": "@xiaomeng/shared",
+  "version": "1.0.0",
+  "description": "小梦共享层 - 前后端共享的 TS 类型和常量",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo '共享层为纯TS文件，无需构建，直接引用源码'",
+    "lint": "node ../../scripts/lint.js",
+    "clean": "rimraf node_modules dist"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.3.3"
+  }
+}

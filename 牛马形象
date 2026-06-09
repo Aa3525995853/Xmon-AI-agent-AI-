@@ -1,0 +1,289 @@
+要实现这种多步骤状态切换+动画过渡的交互效果，核心是结合 CSS 动画/过渡 + JavaScript 控制类名切换。下面是一个完整的示例（含代码注释），帮你理解实现逻辑：
+1. HTML 结构：拆分“角色”和“场景元素”
+把马、椅子、电脑等元素拆成独立 div，方便分别控制动画。
+html
+
+预览
+
+
+
+
+<div class="container">
+  <!-- 马的角色容器 -->
+  <div class="horse" id="horse">
+    <div class="body"></div>   <!-- 身体 -->
+    <div class="head"></div>  <!-- 头部 -->
+    <div class="tail"></div>  <!-- 尾巴 -->
+  </div>
+
+  <!-- 椅子（仅睡觉阶段显示） -->
+  <div class="chair" id="chair"></div>
+
+  <!-- 电脑（任务执行/完成阶段显示） -->
+  <div class="computer" id="computer">
+    <div class="screen"></div>  <!-- 屏幕 -->
+    <div class="keyboard"></div><!-- 键盘 -->
+  </div>
+</div>
+
+<!-- 控制按钮（模拟流程触发） -->
+<button onclick="nextStep()">下一步</button>
+2. CSS 样式：定义“静态布局”+“动态动画”
+通过关键帧动画（@keyframes） 实现动作变化，用类名切换控制不同阶段的显示/隐藏。
+css
+
+编辑
+
+
+
+/* ---------- 基础布局 ---------- */
+.container {
+  position: relative;
+  width: 400px;
+  height: 300px;
+  margin: 50px auto;
+}
+
+.horse, .chair, .computer {
+  position: absolute;
+}
+
+/* 马的基础样式（简化为几何图形，实际可替换为 SVG/图片） */
+.horse {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.5s ease; /* 平滑过渡位置/旋转 */
+}
+.body {
+  width: 60px;
+  height: 80px;
+  background: #A0522D; /* 棕色身体 */
+  border-radius: 30px 30px 10px 10px;
+}
+.head {
+  width: 40px;
+  height: 40px;
+  background: #A0522D;
+  border-radius: 50%;
+  position: absolute;
+  top: -20px;
+  left: 10px;
+}
+.tail {
+  width: 20px;
+  height: 40px;
+  background: #A0522D;
+  border-radius: 10px;
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+}
+
+/* 椅子（仅睡觉时显示） */
+.chair {
+  width: 80px;
+  height: 100px;
+  background: #8B4513;
+  border-radius: 10px;
+  left: 30%;
+  top: 40%;
+  display: none; /* 默认隐藏，睡觉时显示 */
+}
+
+/* 电脑（任务执行/完成时显示） */
+.computer {
+  width: 100px;
+  height: 80px;
+  background: #696969;
+  border-radius: 5px;
+  left: 60%;
+  top: 40%;
+  display: none; /* 默认隐藏，任务阶段显示 */
+}
+.screen {
+  width: 80px;
+  height: 60px;
+  background: #2F4F4F;
+  border-radius: 3px;
+  margin: 10px auto;
+}
+.keyboard {
+  width: 90px;
+  height: 20px;
+  background: #A9A9A9;
+  border-radius: 3px;
+  margin: 0 auto;
+}
+
+
+/* ---------- 阶段动画（关键帧） ---------- */
+/* 1. 睡觉阶段：躺椅 + Zzz 动画 */
+.horse.sleeping {
+  transform: translate(-50%, -50%) rotate(90deg); /* 躺倒 */
+}
+.horse.sleeping::after {
+  content: "Zzz";
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  animation: zzz 1.5s infinite alternate; /* Zzz 闪烁 */
+}
+@keyframes zzz {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* 2. 伸懒腰阶段：跳跃 + 火箭图标 */
+.horse.stretching {
+  animation: jump 0.8s ease-in-out; /* 跳跃动画 */
+}
+.horse.stretching::before {
+  content: "🚀"; /* 用 emoji 代替火箭图标 */
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  animation: rocketUp 0.8s ease-in-out; /* 火箭上升 */
+}
+@keyframes jump {
+  0% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-30px); }
+  100% { transform: translate(-50%, -50%) translateY(0); }
+}
+@keyframes rocketUp {
+  0% { transform: translateX(-50%) translateY(0) scale(0.8); }
+  100% { transform: translateX(-50%) translateY(-20px) scale(1.2); }
+}
+
+/* 3. 打字阶段：坐回椅子 + 屏幕日志滚动 */
+.horse.typing {
+  transform: translate(-50%, -50%) rotate(0deg); /* 坐直 */
+}
+.computer.typing .screen {
+  animation: scrollLog 2s linear infinite; /* 屏幕日志滚动 */
+}
+@keyframes scrollLog {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 -100px; } /* 假设日志是重复背景图 */
+}
+
+/* 4. 卡住阶段：挠头 + 警告图标 */
+.horse.stuck {
+  animation: scratchHead 1s ease-in-out; /* 挠头动作 */
+}
+.horse.stuck::before {
+  content: "❓"; /* 问号代替挠头 */
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+}
+.computer.stuck .screen {
+  background-color: #FF4500; /* 红色警告屏 */
+  animation: warningFlash 1s infinite alternate; /* 警告闪烁 */
+}
+@keyframes scratchHead {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  50% { transform: translate(-50%, -50%) rotate(-10deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+@keyframes warningFlash {
+  0% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* 5. 完成阶段：欢呼 + 彩带 + 奖杯 */
+.horse.celebrating {
+  animation: cheer 0.8s ease-in-out; /* 欢呼跳跃 */
+}
+.horse.celebrating::before {
+  content: "🏆"; /* 奖杯 */
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+}
+.computer.celebrating .screen {
+  background-color: #32CD32; /* 绿色成功屏 */
+}
+.confetti { /* 彩带（需额外 JS 生成，这里简化示意） */
+  position: absolute;
+  width: 5px;
+  height: 15px;
+  background: red;
+  animation: confettiFall 2s linear infinite;
+}
+@keyframes cheer {
+  0% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-20px); }
+  100% { transform: translate(-50%, -50%) translateY(0); }
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(100px) rotate(360deg); }
+}
+3. JavaScript 逻辑：控制“阶段切换”
+通过修改类名触发对应动画，模拟“睡觉→伸懒腰→打字→卡住→完成”的流程。
+javascript
+
+编辑
+
+
+
+let currentStep = 0; // 当前步骤（0-4 对应 5 个阶段）
+const steps = [
+  'sleeping',   // 步骤 0：睡觉
+  'stretching', // 步骤 1：伸懒腰
+  'typing',     // 步骤 2：打字
+  'stuck',      // 步骤 3：卡住
+  'celebrating' // 步骤 4：完成
+];
+
+function nextStep() {
+  const horse = document.getElementById('horse');
+  const chair = document.getElementById('chair');
+  const computer = document.getElementById('computer');
+
+  // 移除所有旧阶段类名
+  steps.forEach(step => {
+    horse.classList.remove(step);
+    chair.classList.remove(step);
+    computer.classList.remove(step);
+  });
+
+  // 添加新阶段类名
+  const newStep = steps[currentStep];
+  horse.classList.add(newStep);
+  chair.classList.add(newStep);
+  computer.classList.add(newStep);
+
+  // 控制元素显示/隐藏（根据阶段）
+  if (newStep === 'sleeping') {
+    chair.style.display = 'block';
+    computer.style.display = 'none';
+  } else if (['typing', 'stuck', 'celebrating'].includes(newStep)) {
+    chair.style.display = 'none';
+    computer.style.display = 'block';
+  } else {
+    chair.style.display = 'none';
+    computer.style.display = 'none';
+  }
+
+  // 循环步骤（演示用，实际可按业务逻辑调整）
+  currentStep = (currentStep + 1) % steps.length;
+}
+
+// 初始化第一步（睡觉）
+nextStep();
+关键思路总结
+拆分元素：把复杂角色（马、椅子、电脑）拆成独立 div，方便单独控制动画。
+类名驱动动画：每个阶段对应一个类名（如 sleeping/stretching），通过 JS 切换类名触发 CSS 动画。
+关键帧细化动作：用 @keyframes 定义“跳跃”“滚动”“闪烁”等细节动画，让交互更生动。
+视觉增强：用 ::before/::after 伪元素加图标（如 🚀/❓/🏆），用 animation 做彩带、日志滚动等特效。
+如果需要更精细的效果（比如真实马的 SVG 动画、复杂彩带粒子），可以结合 SVG 路径动画 或 Canvas/WebGL 实现，但核心逻辑仍是“类名切换 + 动画绑定”。先跑通基础逻辑，再逐步优化细节即可～
