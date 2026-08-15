@@ -1,6 +1,7 @@
-# 小梦 (Little Dream) - 语音交互 AI 助手
+# 小梦 (xmon) - 语音交互 AI 助手
 
 华人牌 2060 款手机小梦 - 一个来自未来的语音助手，支持实时语音对话、情绪表达和系统控制。
+目前还在MVP阶段
 
 ## 特性
 
@@ -124,86 +125,44 @@ npm start
 └── docs/                # 文档
 ```
 
-## API 文档
+产品定位：陪伴为主，工具为辅
 
-### 文本聊天
+小梦不仅仅是一个效率工具，更是一个懂你的情感伙伴。在用户不主动发起复杂任务时，她是一个能理解情绪、记住生活点滴的陪伴者；只有当明确需要时，她才会化身为强大的生产力工具。 目前还在MVP阶段，欢迎大佬帮忙优化，让小梦体验更加完善
 
-```bash
-POST /api/chat/text
-Content-Type: application/json
+🧠 核心架构设计理念
+小梦的交互逻辑基于动态意图路由策略，确保在任何场景下都能提供最合适的响应模式。
 
-{
-  "message": "你好，小梦"
-}
-```
+1. 默认闲聊区 (Companion Mode)
+系统默认处于“陪伴模式”，旨在提供无压力的交流体验。
 
-### 语音聊天
+路由策略：在 intentRouter.js 中，若未检测到明确的任务指令，系统默认将请求路由至 chat 区域（置信度 0.60）。
+覆盖场景：包括快速问答（天气/时间）、翻译、头脑风暴、简单计算及知识问答等轻量级交互。
+情感优先：在 intentClassifier 中，情感支持检测拥有最高优先级（Priority 0）。无论何时，只要检测到用户的情绪波动，小梦都会优先给予情感反馈，而非机械地执行任务。
+2. 工作区 (Productivity Mode)
+只有当用户明确表达需求时，系统才会切换到“工作模式”。
 
-```bash
-POST /api/chat
-Content-Type: multipart/form-data
+触发机制：基于关键词匹配（如代码生成、文档处理）或复杂推理需求。
+执行逻辑：在 chatController.js 中，只有被标记为 work 区域且非简单任务（如数据分析、代码审查）的请求，才会调用 taskOrchestrator 进行深度处理。
+3. 意图优先级金字塔
+优先级	检测类型	路由目标	说明
+0	情感支持	闲聊区 (陪伴)	最高优先级，确保情感共鸣
+1	闲聊/招呼	闲聊区 (陪伴)	维持日常互动氛围
+...	...	...	...
+6	中文任务关键词	工作区 (工具)	明确的功能性需求
+7	复杂推理	工作区 (工具)	需要深度思考的任务
+Default	-	闲聊区 (陪伴)	兜底策略，保持陪伴属性
+📱 多端适配策略
+桌面端：完整支持“陪伴”与“工具”双模式切换。
+移动端：考虑到移动场景的碎片化与伴随性，目前强制主要使用闲聊区逻辑，强化随身助手的感觉。
+🛠️ 技术栈与关键文件
+intentRouter.js: 核心路由分发逻辑，定义了 Zone 划分与置信度阈值。
+intentClassifier/index.js: 意图识别引擎，负责情感分析与任务分类。
+chatController.js: 业务控制器，根据路由结果决定调用普通对话流还是任务编排器 (taskOrchestrator)。
+🚀 快速开始
+(在此处补充如何安装依赖和启动项目的命令，例如：)
 
-audio: <audio-file>
-```
-
-### 健康检查
-
-```bash
-GET /health
-GET /health/detailed
-GET /health/liveness
-GET /health/readiness
-```
-
-详细 API 文档：[docs/health-check-api.md](docs/health-check-api.md)
-
-## 配置
-
-### 环境变量
-
-支持 30+ 个环境变量配置项，包括：
-- LLM 配置（temperature, timeout 等）
-- 句子处理配置
-- 背压控制配置
-- 聊天配置
-- TTS 配置
-
-完整配置文档：[docs/environment-variables.md](docs/environment-variables.md)
-
-### 配置验证
-
-系统内置配置验证，确保所有配置值在合理范围内：
-
-```bash
-# 启用配置验证
-NODE_ENV=development npm start
-
-# 或在生产环境
-VALIDATE_CONFIG=true npm start
-```
-
-## 测试
-
-```bash
-# 运行配置测试
-node test-config.js
-
-# 测试 API
-curl -X POST http://localhost:3000/api/chat/text \
-  -H "Content-Type: application/json" \
-  -d '{"message": "你好"}'
-```
-
-## 日志
-
-日志文件位于 `logs/` 目录：
-
-- `app-YYYY-MM-DD.log` - 所有日志（保留 14 天）
-- `error-YYYY-MM-DD.log` - 错误日志（保留 30 天）
-
-日志级别：`error` | `warn` | `info` | `debug`
-
-详细日志文档：[docs/logging.md](docs/logging.md)
+npm install
+npm start
 
 ## 开发
 
@@ -273,7 +232,7 @@ xiaomeng-voice-assistant/
 
 ## 许可证
 
-ISC
+MIT
 
 ## 更新日志
 
