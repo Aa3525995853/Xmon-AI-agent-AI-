@@ -158,11 +158,7 @@ Default	-	闲聊区 (陪伴)	兜底策略，保持陪伴属性
 intentRouter.js: 核心路由分发逻辑，定义了 Zone 划分与置信度阈值。
 intentClassifier/index.js: 意图识别引擎，负责情感分析与任务分类。
 chatController.js: 业务控制器，根据路由结果决定调用普通对话流还是任务编排器 (taskOrchestrator)。
-🚀 快速开始
-(在此处补充如何安装依赖和启动项目的命令，例如：)
 
-npm install
-npm start
 
 ## 开发
 
